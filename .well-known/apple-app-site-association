@@ -1,0 +1,13 @@
+{
+    "applinks": {
+        "apps": [],
+        "details": [
+            {
+                "appID": "8S8YW9GMYH.com.dontyouknowme.nfcprofiledemo",
+                "paths": [
+                    "*"
+                ]
+            }
+        ]
+    }
+}
