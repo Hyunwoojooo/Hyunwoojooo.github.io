@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>NFC Profile</title>
+  <meta name="description" content="NFC로 여는 내 프로필 카드"/>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;margin:0;background:#0b0c10;color:#eaf0f1}
+    .wrap{max-width:720px;margin:0 auto;padding:40px 20px}
+    .card{background:#16181d;border-radius:16px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    .row{display:flex;gap:20px;align-items:center}
+    .avatar{width:96px;height:96px;border-radius:50%;background:#0f1115;object-fit:cover}
+    .sns a{color:#9ad0ff;text-decoration:none;display:inline-block;margin-right:10px}
+    .btns a{display:inline-block;padding:12px 16px;border-radius:10px;background:#2d88ff;color:#fff;text-decoration:none;margin-right:8px}
+    .muted{opacity:.7;font-size:14px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card"><div id="content"></div></div>
+  </div>
+
+<script>
+(function(){
+  // slug 추출: /NfcProfile.github.io/u/{slug}
+  const parts = location.pathname.split('/').filter(Boolean);
+  // ["NfcProfile.github.io","u","demo123"]
+  const slug = parts.length>=3 ? parts[2] : '';
+
+  // 데모 데이터(실서비스는 API로 교체)
+  const profiles = {
+    "demo123": {
+      name: "주현우",
+      headline: "XR/MR Developer",
+      photoUrl: "https://avatars.githubusercontent.com/u/9919?s=200&v=4",
+      sns: {
+        instagram: "https://instagram.com/yourid",
+        github: "https://github.com/yourid",
+        linkedin: "https://www.linkedin.com/in/yourid"
+      },
+      contact: { email: "me@example.com", phone: "+82-10-0000-0000" },
+      bio: "짧은 자기소개 두세 줄.",
+      slug: "demo123"
+    }
+  };
+
+  const el = document.querySelector("#content");
+  if(!slug){ el.innerHTML="<p class='muted'>잘못된 경로. 예: <code>/NfcProfile.github.io/u/demo123</code></p>"; return; }
+
+  // 프로토타입: 커스텀 스킴으로 앱 열기 (UL 세팅 전)
+  const IOS_SCHEME = "myapp://u/" + slug;
+  const ANDROID_SCHEME = "myapp://u/" + slug;
+
+  function openInApp(){
+    const scheme = /iphone|ipad|ipod/i.test(navigator.userAgent) ? IOS_SCHEME : ANDROID_SCHEME;
+    const t = Date.now();
+    location.href = scheme;
+    setTimeout(()=>{ /* 실패 시 웹 유지 */ }, 1000);
+  }
+
+  function render(p){
+    el.innerHTML = `
+      <div class="row">
+        <img class="avatar" src="${p.photoUrl}" alt="avatar"/>
+        <div>
+          <h2 style="margin:0 0 4px">${p.name}</h2>
+          <div class="muted">${p.headline ?? ""}</div>
+        </div>
+      </div>
+      <div style="margin-top:16px">${p.bio ?? ""}</div>
+      <div class="sns" style="margin-top:16px">
+        ${p.sns?.instagram ? `<a href="${p.sns.instagram}" target="_blank">Instagram</a>` : ""}
+        ${p.sns?.github ? `<a href="${p.sns.github}" target="_blank">GitHub</a>` : ""}
+        ${p.sns?.linkedin ? `<a href="${p.sns.linkedin}" target="_blank">LinkedIn</a>` : ""}
+      </div>
+      <div class="btns" style="margin-top:16px">
+        ${p.contact?.email ? `<a href="mailto:${p.contact.email}">이메일</a>` : ""}
+        ${p.contact?.phone ? `<a href="tel:${(p.contact.phone).replaceAll('-','')}">전화</a>` : ""}
+        <a href="#" onclick="(${openInApp.toString()})();return false;">앱에서 열기</a>
+      </div>
+      <div class="muted" style="margin-top:12px">slug: ${p.slug}</div>
+    `;
+  }
+
+  const d = profiles[slug];
+  if(d) render(d);
+  else el.innerHTML = `<p>슬러그 <code>${slug}</code>에 해당하는 프로필이 없습니다.</p>`;
+})();
+</script>
+</body>
+</html>
